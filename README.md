@@ -1,0 +1,1 @@
+Project directory for the GraphQL project. Full-stack application with back-end support from express.js and MongoDB integration. 
