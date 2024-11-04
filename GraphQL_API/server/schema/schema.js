@@ -136,9 +136,27 @@ const Mutation = new GraphQLObjectType({
                 // Save project instance to Mongoose DB and return it
                 return project.save();
             }
+        },
+        addTask: {
+            type: TaskType,
+            args: {
+                title: { type: GraphQLNonNull(GraphQLString) },
+                weight: { type: GraphQLNonNull(GraphQLInt) },
+                description: { type: GraphQLNonNull(GraphQLString) },
+                projectId: { type: GraphQLNonNull(GraphQLID) }
+            },
+            resolve(parent, args) {
+                const task = new Task({
+                    title: args.title,
+                    weight: args.weight,
+                    description: args.description,
+                    projectId: args.projectId
+                });
+                return task.save();
+            }
         }
     }
-});
+})
 
 module.exports = new GraphQLSchema({
     query: RootQuery,
