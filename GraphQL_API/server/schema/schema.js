@@ -13,6 +13,7 @@ const { models } = require("mongoose");
 const Project = require('../models/project');
 const Task = require('../models/task');
 
+/* Commenting out for final task
 // Dummy data for 'tasks' type
 const tasks = [
     {
@@ -46,6 +47,7 @@ const projects = [
         description: 'Bootstrap is a free and open-source CSS framework directed at responsive, mobile-first front-end web development. It contains CSS and JavaScript design templates for typography, forms, buttons, navigation, and other interface components.'
     }
 ];
+*/
 
 // Create new GraphQLObjectType
 const TaskType = new GraphQLObjectType({
@@ -56,9 +58,10 @@ const TaskType = new GraphQLObjectType({
         weight: { type: GraphQLInt },
         description: { type: GraphQLString },
         project: {
-            type: TaskType,
+            type: ProjectType,
             resolve(parent, args) {
-                return _.find(projects, { id: parent.projectId});
+                // Using Mongoose to find a project by its ID
+                return Project.findById(parent.projectId);
             }
         }
     })
@@ -74,11 +77,12 @@ const ProjectType = new GraphQLObjectType({
         tasks: {
             type: GraphQLList(TaskType),
             resolve(parent, args) {
-                return _.filter(tasks, { projectId: parent.id});
+                // Using Mongoose to find a task using its ProjectId
+                return Task.find({ projectId: parent.id });
             }
         }
     })
-})
+});
 
 // Define RootQueryType
 const RootQuery = new GraphQLObjectType({
@@ -88,27 +92,30 @@ const RootQuery = new GraphQLObjectType({
             type: TaskType,
             args: { id: { type: GraphQLID } },
             resolve(parent, args) {
-                // uses lodash to search through tasks and return object with matching ID
-                return _.find(tasks, { id: args.id });
+                // Find single task by ID in DB
+                return Task.findById(args.id);
                 }
             },
             project: {
                 type: ProjectType,
                 args: { id: {type: GraphQLID } },
                 resolve(parent, args) {
-                    return _.find(projects, { id: args.id });
+                    // Find single project by ID in DB
+                    return Project.findById(args.id);
                 }
             },
             tasks: {
                 type: GraphQLList(TaskType),
                 resolve(parent, args) {
-                    return tasks; // Return all tasks
+                    // Return all tasks in the DB
+                    return Task.find({});
                 }
             },
             projects: {
                 type: GraphQLList(ProjectType),
                 resolve(parent, args) {
-                    return projects; // Return all projects
+                    // Return all projects in the DB
+                    return Project.find({});
                 }
             }
         }
