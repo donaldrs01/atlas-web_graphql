@@ -3,5 +3,8 @@
         title
         weight
         description
+        project {
+            title
+        }
     }
 }
