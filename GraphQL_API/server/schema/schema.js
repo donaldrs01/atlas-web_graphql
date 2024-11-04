@@ -5,9 +5,13 @@ const {
     GraphQLSchema,
     GraphQLID,
     GraphQLInputObjectType,
-    GraphQLList
+    GraphQLList,
+    GraphQLNonNull
 } = require("graphql");
 const _ = require('lodash');
+const { models } = require("mongoose");
+const Project = require('../models/project');
+const Task = require('../models/task');
 
 // Dummy data for 'tasks' type
 const tasks = [
@@ -110,6 +114,33 @@ const RootQuery = new GraphQLObjectType({
         }
 });
 
+// Mutation type
+const Mutation = new GraphQLObjectType({
+    name: 'Mutation',
+    fields: {
+        addProject: {
+            type: ProjectType,
+            args: {
+                title: { type: GraphQLNonNull(GraphQLString) },
+                weight: { type: GraphQLNonNull(GraphQLInt) },
+                description: { type: GraphQLNonNull(GraphQLString) }
+            },
+            resolve(parent, args) {
+                // Create new Project instance
+                const project = new Project({
+                    title: args.title,
+                    weight: args.weight,
+                    description: args.description
+                });
+
+                // Save project instance to Mongoose DB and return it
+                return project.save();
+            }
+        }
+    }
+});
+
 module.exports = new GraphQLSchema({
-    query: RootQuery
+    query: RootQuery,
+    mutation: Mutation
 });
